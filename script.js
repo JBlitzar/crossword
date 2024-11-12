@@ -7,6 +7,9 @@ class CrosswordCell {
     this.downClue = "";
     this.acrossClue = "";
     this.clueIdx = null;
+
+    // Add right-click listener for editing clues
+    this.input.addEventListener("contextmenu", (e) => this.showClueEditor(e));
   }
 
   // Handle input events for this cell
@@ -22,6 +25,47 @@ class CrosswordCell {
       event.target.style.backgroundColor = "";
       event.target.style.color = "";
     }
+  }
+
+  // Show the clue editor on right-click
+  showClueEditor(event) {
+    event.preventDefault(); // Prevent the default right-click menu
+
+    // Display clue editor and pre-fill with current clues
+    const clueEditor = document.getElementById("clue-editor");
+    clueEditor.style.display = "block";
+    clueEditor.dataset.row = this.row;
+    clueEditor.dataset.col = this.col;
+
+    // Fill the clue editor with current down and across clues
+    document.getElementById("down-clue").value = this.downClue || "";
+    document.getElementById("across-clue").value = this.acrossClue || "";
+  }
+
+  // Update the down and across clues from the clue editor
+  updateCluesFromEditor() {
+    const clueEditor = document.getElementById("clue-editor");
+    const row = clueEditor.dataset.row;
+    const col = clueEditor.dataset.col;
+
+    const downClue = document.getElementById("down-clue").value;
+    const acrossClue = document.getElementById("across-clue").value;
+
+    // Update the cell's clues
+    this.downClue = downClue;
+    this.acrossClue = acrossClue;
+
+    // Optionally, update the displayed clues on the side
+    this.grid[row][col].downClue = downClue;
+    this.grid[row][col].acrossClue = acrossClue;
+    clueEditor.style.display = "none";
+    this.updateClueDisplay();
+  }
+
+  // Display the clue index in the corner of each cell
+  updateClueDisplay() {
+    const clueIndex = this.clueIdx !== null ? this.clueIdx : "";
+    this.input.setAttribute("data-clue-idx", clueIndex);
   }
 }
 
