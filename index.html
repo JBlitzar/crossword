@@ -33,7 +33,26 @@
       <input type="text" id="across-clue" />
       <br />
       <button id="update-clue-btn">Update Clues</button>
+      <br /><br />
+
+      <!-- New elements for generating candidate words -->
+      <label>Generate Candidate Words:</label>
+      <br />
+      <input
+        type="radio"
+        id="across-radio"
+        name="word-direction"
+        value="across"
+      />
+      <label for="across-radio">Across</label>
+      <input type="radio" id="down-radio" name="word-direction" value="down" />
+      <label for="down-radio">Down</label>
+      <br /><br />
+      <button id="generate-words" disabled>Generate Words</button>
+      <br /><br />
+      <textarea id="candidate-words" rows="5" cols="30" readonly></textarea>
     </div>
+
     <div id="clue-sidebar">
       <h3>Across</h3>
       <ul id="across-clues"></ul>

@@ -24,7 +24,6 @@ class CrosswordCell {
       event.target.style.color = "";
     }
 
-    // Trigger clue update in the CrosswordGrid instance
     game.grid.updateClues();
   }
 
@@ -39,18 +38,41 @@ class CrosswordCell {
     document.getElementById("down-clue").value = this.downClue || "";
     document.getElementById("across-clue").value = this.acrossClue || "";
 
-    document
-      .getElementById("update-clue-btn")
-      .addEventListener("click", updateCluesFromEditor);
+    const isStartingAcross = this.isStartingAcross();
+    const isStartingDown = this.isStartingDown();
+
+    document.getElementById("generate-words").disabled = !(
+      isStartingAcross || isStartingDown
+    );
+    document.getElementById("across-radio").disabled = !isStartingAcross;
+    document.getElementById("down-radio").disabled = !isStartingDown;
+    document.getElementById("across-radio").checked = isStartingAcross;
+    document.getElementById("down-radio").checked = !isStartingAcross;
+
+    document.getElementById("generate-words").onclick = () => {
+      const direction = document.getElementById("across-radio").checked
+        ? "across"
+        : "down";
+      game.grid.generateCandidateWords(this.row, this.col, direction);
+    };
+
+    document.getElementById("update-clue-btn").onclick = updateCluesFromEditor;
   }
 
   updateClueDisplay() {
     const clueIndex = this.clueIdx !== null ? this.clueIdx : "";
     this.input.setAttribute("data-clue-idx", clueIndex);
   }
+
+  isStartingAcross() {
+    return this.col === 0 || game.grid.grid[this.row][this.col - 1].filled;
+  }
+
+  isStartingDown() {
+    return this.row === 0 || game.grid.grid[this.row - 1][this.col].filled;
+  }
 }
 
-// Move updateCluesFromEditor to a more global scope (or where the clue editor logic lives)
 function updateCluesFromEditor() {
   const clueEditor = document.getElementById("clue-editor");
   const row = clueEditor.dataset.row;
@@ -75,12 +97,12 @@ class CrosswordGrid {
     this.size = size;
     this.grid = [];
     this.wordList = [];
-    this.crosswordMap = new Map(); // Store crossword cells with a map
+    this.crosswordMap = new Map();
   }
 
   generateGrid() {
     this.grid = [];
-    this.crosswordMap.clear(); // Clear any existing map entries
+    this.crosswordMap.clear();
     const container = document.getElementById("crossword-container");
     container.innerHTML = "";
 
@@ -99,7 +121,7 @@ class CrosswordGrid {
 
         const crosswordCell = new CrosswordCell(input, row, col);
         rowData.push(crosswordCell);
-        this.crosswordMap.set(crosswordCell.key, crosswordCell); // Store the cell in the map
+        this.crosswordMap.set(crosswordCell.key, crosswordCell);
         tr.appendChild(td);
       }
       this.grid.push(rowData);
@@ -173,17 +195,44 @@ class CrosswordGrid {
     console.log("Puzzle solving not implemented yet.");
   }
 
-  exportPuzzle() {
-    const crosswordJSON = JSON.stringify(this.grid);
-    console.log("Exported crossword puzzle:", crosswordJSON);
+  generateCandidateWords(row, col, direction) {
+    const length = this.getWordLength(row, col, direction);
+    const pattern = this.getPattern(row, col, direction, length);
+    console.log(this.wordList);
+    const candidates = this.wordList
+      .filter((word) => word.length === length && pattern.test(word))
+      .join("\n");
+
+    console.log(candidates);
+
+    document.getElementById("candidate-words").value = candidates;
   }
 
-  playMode() {
-    const inputs = document.querySelectorAll("input");
-    inputs.forEach((input) => {
-      input.disabled = true;
-    });
-    console.log("Entering play mode, no further edits allowed.");
+  getWordLength(row, col, direction) {
+    let length = 0;
+    if (direction === "across") {
+      while (col + length < this.size && !this.grid[row][col + length].filled) {
+        length++;
+      }
+    } else {
+      while (row + length < this.size && !this.grid[row + length][col].filled) {
+        length++;
+      }
+    }
+    return length;
+  }
+
+  getPattern(row, col, direction, length) {
+    let pattern = "";
+    for (let i = 0; i < length; i++) {
+      const cell =
+        direction === "across"
+          ? this.grid[row][col + i]
+          : this.grid[row + i][col];
+      pattern += cell.input.value ? cell.input.value.toLowerCase() : ".";
+    }
+    console.log(pattern);
+    return new RegExp(`^${pattern}$`);
   }
 }
 
