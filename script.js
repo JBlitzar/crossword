@@ -8,6 +8,9 @@ class CrosswordCell {
     this.acrossClue = "";
     this.clueIdx = null;
 
+    // Create a unique key to reference the crossword cell in the map
+    this.key = `${row}-${col}`;
+
     // Add right-click listener for editing clues
     this.input.addEventListener("contextmenu", (e) => this.showClueEditor(e));
   }
@@ -40,6 +43,10 @@ class CrosswordCell {
     // Fill the clue editor with current down and across clues
     document.getElementById("down-clue").value = this.downClue || "";
     document.getElementById("across-clue").value = this.acrossClue || "";
+
+    document.getElementById("update-clue-btn").addEventListener("click", () => {
+      this.updateCluesFromEditor();
+    });
   }
 
   // Update the down and across clues from the clue editor
@@ -51,15 +58,17 @@ class CrosswordCell {
     const downClue = document.getElementById("down-clue").value;
     const acrossClue = document.getElementById("across-clue").value;
 
-    // Update the cell's clues
-    this.downClue = downClue;
-    this.acrossClue = acrossClue;
+    // Get the correct crossword cell object using the row and column
+    const cell = crosswordMap.get(`${row}-${col}`);
+    if (cell) {
+      // Update the cell's clues
+      cell.downClue = downClue;
+      cell.acrossClue = acrossClue;
+      cell.updateClueDisplay();
+    }
 
-    // Optionally, update the displayed clues on the side
-    this.grid[row][col].downClue = downClue;
-    this.grid[row][col].acrossClue = acrossClue;
+    // Hide the clue editor
     clueEditor.style.display = "none";
-    this.updateClueDisplay();
   }
 
   // Display the clue index in the corner of each cell
@@ -74,6 +83,7 @@ class CrosswordGrid {
     this.size = size;
     this.grid = [];
     this.wordList = [];
+    this.crosswordCells = new Map(); // Store crossword cells with a map
   }
 
   // Generate the crossword grid
@@ -95,8 +105,10 @@ class CrosswordGrid {
         input.addEventListener("input", (e) => this.handleInput(e, row, col));
         td.appendChild(input);
 
+        // Create a new CrosswordCell instance and associate it with the input element
         const crosswordCell = new CrosswordCell(input, row, col);
         rowData.push(crosswordCell);
+        this.crosswordCells.set(crosswordCell.key, crosswordCell); // Store the cell in the map
         tr.appendChild(td);
       }
       this.grid.push(rowData);
@@ -109,9 +121,11 @@ class CrosswordGrid {
 
   // Handle input events for the entire grid
   handleInput(event, row, col) {
-    const cell = this.grid[row][col];
-    cell.handleInput(event);
-    this.updateClues();
+    const cell = this.crosswordCells.get(`${row}-${col}`);
+    if (cell) {
+      cell.handleInput(event);
+      this.updateClues();
+    }
   }
 
   // Fetch word list from the API

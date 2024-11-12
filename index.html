@@ -32,7 +32,13 @@
       <label for="across-clue">Across Clue:</label>
       <input type="text" id="across-clue" />
       <br />
-      <button onclick="game.updateCluesFromEditor()">Update Clues</button>
+      <button id="update-clue-btn">Update Clues</button>
+    </div>
+    <div id="clue-sidebar">
+      <h3>Across</h3>
+      <ul id="across-clues"></ul>
+      <h3>Down</h3>
+      <ul id="down-clues"></ul>
     </div>
 
     <button onclick="game.exportPuzzle()">Export Puzzle</button>
