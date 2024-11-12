@@ -1,10 +1,10 @@
 import numpy as np
 
 # Load dictionary words
-def load_words():
+def load_words(s):
     with open('/usr/share/dict/words', 'r') as file:
         words = file.read().splitlines()
-    return [word.lower() for word in words if len(word) > 2]
+    return [word.lower() for word in words if len(word) > 2 and len(word) <= s]
 
 # Create an empty crossword grid
 def create_grid(size):
@@ -87,7 +87,8 @@ def print_grid(grid):
 # Example Usage
 if __name__ == "__main__":
     size = 3  # Grid size
-    word_list = load_words()  # Load dictionary words
+    word_list = load_words(size)  # Load dictionary words
+    print(word_list)
     grid = create_grid(size)  # Create an empty grid
     success = generate_crossword(grid, word_list)  # Try to generate the crossword
     if success:
