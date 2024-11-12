@@ -180,9 +180,7 @@ class CrosswordGrid {
   }
 
   async fetchWords() {
-    const response = await fetch(
-      "https://api.allorigins.win/raw?url=https://www.mit.edu/~ecprice/wordlist.10000"
-    );
+    const response = await fetch("dict.txt");
     const words = await response.text();
     this.wordList = words
       .split("\n")
