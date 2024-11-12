@@ -1,3 +1,30 @@
+class CrosswordCell {
+  constructor(inputElement, row, col) {
+    this.input = inputElement;
+    this.row = row;
+    this.col = col;
+    this.filled = false;
+    this.downClue = "";
+    this.acrossClue = "";
+    this.clueIdx = null;
+  }
+
+  // Handle input events for this cell
+  handleInput(event) {
+    const value = event.target.value;
+    this.filled = value === "#";
+
+    // Update the background color based on whether it's filled
+    if (this.filled) {
+      event.target.style.backgroundColor = "black";
+      event.target.style.color = "white"; // White text for visibility
+    } else {
+      event.target.style.backgroundColor = "";
+      event.target.style.color = "";
+    }
+  }
+}
+
 class CrosswordGrid {
   constructor(size) {
     this.size = size;
@@ -23,7 +50,9 @@ class CrosswordGrid {
         input.maxLength = 1;
         input.addEventListener("input", (e) => this.handleInput(e, row, col));
         td.appendChild(input);
-        rowData.push({ input, filled: false });
+
+        const crosswordCell = new CrosswordCell(input, row, col);
+        rowData.push(crosswordCell);
         tr.appendChild(td);
       }
       this.grid.push(rowData);
@@ -34,21 +63,10 @@ class CrosswordGrid {
     this.fetchWords();
   }
 
-  // Handle input events
+  // Handle input events for the entire grid
   handleInput(event, row, col) {
-    const value = event.target.value;
-    this.grid[row][col].filled = value === "#";
-
-    // Update the background color of the square based on whether it's filled
-    const square = this.grid[row][col];
-    if (square.filled) {
-      event.target.style.backgroundColor = "black"; // color the square black
-      event.target.style.color = "white"; // change text color to white for visibility
-    } else {
-      event.target.style.backgroundColor = ""; // reset the color when it's not filled
-      event.target.style.color = ""; // reset text color
-    }
-
+    const cell = this.grid[row][col];
+    cell.handleInput(event);
     this.updateClues();
   }
 
@@ -58,33 +76,35 @@ class CrosswordGrid {
       "https://api.allorigins.win/raw?url=https://www.mit.edu/~ecprice/wordlist.10000"
     );
     const words = await response.text();
-    this.wordList = words.filter((word) => word.length <= this.size);
+    this.wordList = words
+      .split("\n")
+      .filter((word) => word.length <= this.size);
     console.log("Fetched word list:", this.wordList);
     this.solvePuzzle();
   }
 
-  // Update the clues
+  // Update the clues based on the grid
   updateClues() {
     let clueIdx = 0;
 
     for (let row = 0; row < this.size; row++) {
       for (let col = 0; col < this.size; col++) {
-        const square = this.grid[row][col];
-        if (!square.filled) {
+        const cell = this.grid[row][col];
+        if (!cell.filled) {
           let isDown = row === 0 || this.grid[row - 1][col].filled;
           let isAcross = col === 0 || this.grid[row][col - 1].filled;
           if (isDown && isAcross) {
-            this.grid[row][col].downClue = "Down Clue: ";
-            this.grid[row][col].acrossClue = "Across Clue: ";
-            this.grid[row][col].clueIdx = clueIdx;
+            cell.downClue = "Down Clue: ";
+            cell.acrossClue = "Across Clue: ";
+            cell.clueIdx = clueIdx;
             clueIdx++;
           } else if (isDown) {
-            this.grid[row][col].downClue = "Down Clue: ";
-            this.grid[row][col].clueIdx = clueIdx;
+            cell.downClue = "Down Clue: ";
+            cell.clueIdx = clueIdx;
             clueIdx++;
           } else if (isAcross) {
-            this.grid[row][col].acrossClue = "Across Clue: ";
-            this.grid[row][col].clueIdx = clueIdx;
+            cell.acrossClue = "Across Clue: ";
+            cell.clueIdx = clueIdx;
             clueIdx++;
           }
         }
@@ -92,41 +112,19 @@ class CrosswordGrid {
     }
   }
 
-  // Solve the crossword puzzle automatically
+  // Solve the crossword puzzle by filling in words
   solvePuzzle() {
-    for (let row = 0; row < this.size; row++) {
-      for (let col = 0; col < this.size; col++) {
-        const square = this.grid[row][col];
-        if (square.filled === false) {
-          const word = this.findMatchingWord(row, col);
-          if (word) {
-            this.fillWord(row, col, word);
-          }
-        }
-      }
-    }
+    // Add solving logic here based on the word list
+    console.log("Puzzle solving not implemented yet.");
   }
 
-  // Find a matching word from the word list
-  findMatchingWord(row, col) {
-    const word = this.wordList.find((w) => w.length === this.size);
-    return word ? word.toUpperCase() : null;
-  }
-
-  // Fill the word into the grid
-  fillWord(row, col, word) {
-    for (let i = 0; i < word.length; i++) {
-      this.grid[row][col + i].input.value = word[i];
-    }
-  }
-
-  // Export the crossword puzzle to JSON
+  // Export the crossword as a JSON object
   exportPuzzle() {
     const crosswordJSON = JSON.stringify(this.grid);
     console.log("Exported crossword puzzle:", crosswordJSON);
   }
 
-  // Switch to play mode (disable editing)
+  // Switch to play mode where users can't edit
   playMode() {
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
