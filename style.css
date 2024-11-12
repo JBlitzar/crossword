@@ -1,0 +1,76 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+label {
+  margin-right: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+input {
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  font-size: 18px;
+  border: 1px solid #ddd;
+  outline: none;
+  text-transform: uppercase;
+}
+
+input:disabled {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+table {
+  margin-top: 20px;
+  border-collapse: collapse;
+  display: inline-block;
+}
+
+td {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+input {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ddd;
+  outline: none;
+  text-transform: uppercase;
+}
+
+input:disabled {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+#crossword-container {
+  margin-top: 20px;
+}
+
+#crossword-container table {
+  margin: 0 auto;
+}
